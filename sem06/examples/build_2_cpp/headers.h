@@ -1,0 +1,1 @@
+char* concat(const char* a, const char* b, char* buf);
