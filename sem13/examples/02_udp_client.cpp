@@ -31,18 +31,12 @@ void sendToSocket(int socket_fd, std::string message, const sockaddr_in& target)
 }
 
 // getResponseFromUDP Читает из UDP-сокета
-std::string getResponseFromUDP(int socket_fd) {
+std::tuple<std::string, sockaddr_in, size_t> getResponseFromUDP(int socket_fd) {
     char buf[4096];
     sockaddr_in from_addr;
     socklen_t addr_len;
     size_t bytes_got = recvfrom(socket_fd, buf, sizeof(buf), 0, (sockaddr*)&from_addr, &addr_len);
-    return std::string(buf, bytes_got);
-}
-
-std::string getResponse(int socket_fd) {
-    char buf[4096];
-    size_t bytes_got = recv(socket_fd, buf, sizeof(buf), 0);
-    return std::string(buf, bytes_got);
+    return {std::string(buf, bytes_got), from_addr, addr_len};
 }
 
 int main(int argc, char **argv) {
@@ -58,8 +52,12 @@ int main(int argc, char **argv) {
     // 2. Отправляем сообщение серверу.
     sendToSocket(socket_fd, message, target);
 
-    // 3. Читает из сокета
-    auto response = getResponseFromUDP(socket_fd);
+    // 3. Читаем из сокета
+    auto [response, from_addr, addr_len] = getResponseFromUDP(socket_fd);
+    auto peer_ipv4 = (sockaddr_in*)&from_addr;
+    char peer_addr_str[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &peer_ipv4->sin_addr, peer_addr_str, sizeof(peer_addr_str));
+    std::cout << "Received response from " << peer_addr_str << ":" << ntohs(peer_ipv4->sin_port) << std::endl;
     std::cout << "response: " << response << std::endl;
 
     // 4. Закрываем сокет
