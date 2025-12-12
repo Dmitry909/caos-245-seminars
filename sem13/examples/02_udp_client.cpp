@@ -59,7 +59,8 @@ int main(int argc, char **argv) {
     sendToSocket(socket_fd, message, target);
 
     // 3. Читает из сокета
-    getResponseFromUDP(socket_fd);
+    auto response = getResponseFromUDP(socket_fd);
+    std::cout << "response: " << response << std::endl;
 
     // 4. Закрываем сокет
     close(socket_fd);
