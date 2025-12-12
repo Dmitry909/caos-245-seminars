@@ -12,7 +12,7 @@
 int connectByTCP(std::string ip, int port) {
     int socket_fd = socket( // создание сокета
         AF_INET,                      // IPv4
-        SOCK_STREAM | SOCK_CLOEXEC,     // SOCK_STREAM = TCP
+        SOCK_STREAM,                    // SOCK_STREAM = TCP
         0                           // 0 = из флагов очевидно, какой использовать
     );
 
