@@ -28,7 +28,8 @@ int connectByTCP(std::string ip, int port) {
 // sendToSocket Отправляет в TCP-сокет сообщение
 int sendToSocket(int socket_fd, std::string message) {
     // TODO дописывать, если записалось не полностью.
-    send(socket_fd, message, message.size(), MSG_NOSIGNAL);
+    int sent = send(socket_fd, message.data(), message.size(), MSG_NOSIGNAL);
+    return sent;
 }
 
 std::string getResponse(int socket_fd) {
@@ -52,6 +53,7 @@ int main(int argc, char **argv) {
 
     // 3. Читаем ответ сервера.
     std::string response = getResponse(socket_fd);
+    std::cout << "response: " << response << std::endl;
 
     // 4. Закрываем сокет
     close(socket_fd);
