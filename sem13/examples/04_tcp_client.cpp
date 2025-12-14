@@ -15,26 +15,42 @@ int connectByTCP(std::string ip, int port) {
         SOCK_STREAM,                    // SOCK_STREAM = TCP
         0                           // 0 = из флагов очевидно, какой использовать
     );
+    if (socket_fd == -1) {
+        std::cerr << "socket failed" << std::endl;
+        exit(1);
+    }
 
     sockaddr_in target{};
     target.sin_family = AF_INET;
     inet_pton(AF_INET, ip.data(), &target.sin_addr); // перевод строки 1.2.3.4 в 4 байта
     target.sin_port = htons(port);
-    connect(socket_fd, (sockaddr*)&target, sizeof(target));
+    int connect_result = connect(socket_fd, (sockaddr*)&target, sizeof(target));
+    if (connect_result == -1) {
+        std::cerr << "connect failed" << std::endl;
+        exit(1);
+    }
 
     return socket_fd;
 }
 
 // sendToSocket Отправляет в TCP-сокет сообщение
-int sendToSocket(int socket_fd, std::string message) {
+ssize_t sendToSocket(int socket_fd, std::string message) {
     // TODO дописывать, если записалось не полностью.
-    int sent = send(socket_fd, message.data(), message.size(), MSG_NOSIGNAL);
+    ssize_t sent = send(socket_fd, message.data(), message.size(), MSG_NOSIGNAL);
+    if (sent == -1) {
+        std::cerr << "send failed" << std::endl;
+        exit(1);
+    }
     return sent;
 }
 
 std::string getResponse(int socket_fd) {
     char buf[4096];
-    size_t bytes_got = recv(socket_fd, buf, sizeof(buf), 0);
+    ssize_t bytes_got = recv(socket_fd, buf, sizeof(buf), 0);
+    if (bytes_got == -1) {
+        std::cerr << "recv failed: " << strerror(errno) << std::endl;
+        exit(1);
+    }
     return std::string(buf, bytes_got);
 }
 
